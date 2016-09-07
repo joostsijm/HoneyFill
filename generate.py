@@ -7,8 +7,8 @@ import sys
 import os
 import argparse
 
-parses = argparse.ArgumentParser(
-        description='''Generating a script that starts the PokemonGo-Map using
+parser = argparse.ArgumentParser(
+        description='''Generating a PokemonGo-Map starting script with using
         given coords and accounts from CSV Files'''
         )
 parser.add_argument(
@@ -18,7 +18,7 @@ parser.add_argument(
         help='''Path to the account file. Stored in CVS format:
             <account type>,<username>,<password>''')
 parser.add_argument(
-        '-c','--accounts',
+        '-c','--coords',
         action='store_true',
         dest='coords',
         help='''Path to the file that stores the coords in CSV format:
@@ -28,6 +28,9 @@ parser.add_argument(
         action='store_true',
         dest='output',
         help='''Place to store the output file.''')
+parser.add_argument(
+        '-n','--accountnumbers',
+        action='store_true',
+        dest='accountnumber',
+        help='''Number accounts per leaps.''')
 args = parser.parse_args()
-
-
