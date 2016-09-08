@@ -11,8 +11,7 @@ Currently work in progress.
 
 ## Usage
 
-    usage: generate.py [-h] -a ACCOUNTS -c COORDS -n ACCOUNTNUMBERS [-o OUTPUT]
-                   [-st STEPS]
+    usage: generate.py [-h] -a ACCOUNTS -c COORDS -n ACCOUNTNUMBERS [-o OUTPUT] [-st STEPS]
 
     Generating a PokemonGo-Map starting script with using given coords and
     accounts from CSV Files
@@ -24,10 +23,10 @@ Currently work in progress.
                             <account type>,<username>,<password>
       -c COORDS, --coords COORDS
                             Path to the file that stores the coords in CSV format:
-                        <long>,<lat>
+                            <long>,<lat>
       -n ACCOUNTNUMBERS, --accountnumbers ACCOUNTNUMBERS
                             Number accounts per leaps.
       -o OUTPUT, --output OUTPUT
-                        Place to store the output file.
+                            Place to store the output file.
       -st STEPS, --steps STEPS
                             Step size to use.
