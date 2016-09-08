@@ -34,3 +34,8 @@ parser.add_argument(
         type=str,
         help='''Place to store the output file.''')
 args = parser.parse_args()
+
+server_template = "nohup python runserver.py -os -l '{lat}, {lon}' &\n" #Server template for linux
+worker_template = "sleep 0.2; nohup python runserver.py -ns -l '{lat}, {lon}' -st {steps} {auth}&\n" # Worker template
+auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
+
