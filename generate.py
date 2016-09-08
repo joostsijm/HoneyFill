@@ -13,24 +13,24 @@ parser = argparse.ArgumentParser(
         )
 parser.add_argument(
         '-a','--accounts', 
-        action='store_true',
-        dest='accounts',
+        required=True,
+        type=str,
         help='''Path to the account file. Stored in CVS format:
             <account type>,<username>,<password>''')
 parser.add_argument(
         '-c','--coords',
-        action='store_true',
-        dest='coords',
+        required=True,
+        type=str,
         help='''Path to the file that stores the coords in CSV format:
             <long>,<lat>''')
 parser.add_argument(
-        '-o','--output',
-        action='store_true',
-        dest='output',
-        help='''Place to store the output file.''')
-parser.add_argument(
         '-n','--accountnumbers',
-        action='store_true',
-        dest='accountnumber',
+        required=True,
+        type=int,
         help='''Number accounts per leaps.''')
+parser.add_argument(
+        '-o','--output',
+        default="startworkers.sh",
+        type=str,
+        help='''Place to store the output file.''')
 args = parser.parse_args()
