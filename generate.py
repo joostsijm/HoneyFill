@@ -44,3 +44,25 @@ server_template = "nohup python runserver.py -os -l '{lat}, {lon}' &\n" #Server 
 worker_template = "sleep 0.2; nohup python runserver.py -ns -l '{lat}, {lon}' -st {steps} {auth}&\n" # Worker template
 auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
 
+coordpath = args.coords 
+accpath = args.accounts
+
+if os.path.isfile(accpath):
+    if os.path.splitext(accpath)[1] != ".csv":
+        print("account file isn't a csv file: {}".format(accpath))
+        exit()
+
+else:
+    print("Account file doesn't exist: {}".format(accpath))
+    exit()
+
+if os.path.isfile(coordpath):
+    if os.path.splitext(coordpath)[1] != ".csv":
+        print("coordinate file isn't a csv file: {}".format(coordpath))
+        exit()
+
+else:
+    print("coordinate file doesn't exist: {}".format(coordpath))
+    exit()
+
+print("Generating script to: \"{}\".".format(args.output))
