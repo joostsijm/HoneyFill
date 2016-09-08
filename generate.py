@@ -33,6 +33,11 @@ parser.add_argument(
         default="startworkers.sh",
         type=str,
         help='''Place to store the output file.''')
+parser.add_argument(
+        '-st','--steps',
+        default="5",
+        type=int,
+        help='''Step size to use.''')
 args = parser.parse_args()
 
 server_template = "nohup python runserver.py -os -l '{lat}, {lon}' &\n" #Server template for linux
