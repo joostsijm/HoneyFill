@@ -13,30 +13,64 @@ parser = argparse.ArgumentParser(
         )
 parser.add_argument(
         '-a','--accounts', 
-        action='store_true',
-        dest='accounts',
+        required=True,
+        type=str,
         help='''Path to the account file. Stored in CVS format:
             <account type>,<username>,<password>''')
 parser.add_argument(
         '-c','--coords',
-        action='store_true',
-        dest='coords',
+        required=True,
+        type=str,
         help='''Path to the file that stores the coords in CSV format:
             <long>,<lat>''')
 parser.add_argument(
+        '-n','--accountnumbers',
+        required=True,
+        type=int,
+        help='''Number accounts per leaps.''')
+parser.add_argument(
         '-o','--output',
-        action='store_true',
-        dest='output',
+        default="startworkers.sh",
+        type=str,
         help='''Place to store the output file.''')
 parser.add_argument(
-        '-n','--accountnumbers',
-        action='store_true',
-        dest='accountnumber',
-        help='''Number accounts per leaps.''')
+        '-st','--steps',
+        default="5",
+        type=int,
+        help='''Step size to use.''')
 args = parser.parse_args()
 
-if args.accounts | args.coords:
-    if os.path.isfile(args.accounts):
-        print("isfile")
-    if os.path.isdir(args.accounts):
-        print("isdir")
+server_template = "nohup python runserver.py -os -l '{lat}, {lon}' &\n" #Server template for linux
+worker_template = "sleep 0.2; nohup python runserver.py -ns -l '{lat}, {lon}' -st {steps} {auth}&\n" # Worker template
+auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
+
+coordpath = args.coords 
+accpath = args.accounts
+
+if os.path.isfile(accpath):
+    if os.path.splitext(accpath)[1] != ".csv":
+        print("account file isn't a csv file: {}".format(accpath))
+        exit()
+    else:
+        print("Reading from coordinate file: \"{}\".".format(accpath))
+        account_fh = open(accpath)
+
+else:
+    print("Account file doesn't exist: {}".format(accpath))
+    exit()
+
+if os.path.isfile(coordpath):
+    if os.path.splitext(coordpath)[1] != ".csv":
+        print("coordinate file isn't a csv file: {}".format(coordpath))
+        exit()
+    else:
+        print("Reading from account file:    \"{}\".".format(coordpath))
+        coord_fh = open(coordpath)
+
+else:
+    print("coordinate file doesn't exist: {}".format(coordpath))
+    exit()
+
+print("Generating script to:         \"{}\".".format(args.output))
+#output_fh = file(args.output, "wb")
+#os.chmod(args.output, 0o755)
