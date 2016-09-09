@@ -43,6 +43,7 @@ args = parser.parse_args()
 server_template = "nohup python runserver.py -os -l '{lat}, {lon}' &\n" #Server template for linux
 worker_template = "sleep 0.2; nohup python runserver.py -ns -l '{lat}, {lon}' -st {steps} {auth}&\n" # Worker template
 auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
+coords_template = "-l '{}, {}' "  # Template for location
 
 coordpath = args.coords 
 accpath = args.accounts
@@ -54,6 +55,8 @@ if os.path.isfile(accpath):
     else:
         print("Reading from coordinate file: \"{}\".".format(accpath))
         account_fh = open(accpath)
+        account_fields = [line.split(",") for line in account_fg]
+        accounts = [auth_template.format(line[1].strip(), line[1].strip(), line[1].strip()) for line in account_fields]
 
 else:
     print("Account file doesn't exist: {}".format(accpath))
@@ -66,6 +69,8 @@ if os.path.isfile(coordpath):
     else:
         print("Reading from account file:    \"{}\".".format(coordpath))
         coord_fh = open(coordpath)
+        coord_fields = [line.split(",") for line in coord_fg]
+        coords = [coord_template.format(line[1].strip(), line[1].strip()) for line in coord_fields]
 
 else:
     print("coordinate file doesn't exist: {}".format(coordpath))
