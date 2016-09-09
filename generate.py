@@ -34,3 +34,9 @@ parser.add_argument(
         dest='accountnumber',
         help='''Number accounts per leaps.''')
 args = parser.parse_args()
+
+if args.accounts | args.coords:
+    if os.path.isfile(args.accounts):
+        print("isfile")
+    if os.path.isdir(args.accounts):
+        print("isdir")
