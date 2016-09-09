@@ -56,7 +56,7 @@ if os.path.isfile(accpath):
         print("Reading from coordinate file: \"{}\".".format(accpath))
         account_fh = open(accpath)
         account_fields = [line.split(",") for line in account_fg]
-        accounts = [auth_template.format(line[1].strip(), line[1].strip(), line[1].strip()) for line in account_fields]
+        accounts = [auth_template.format(auth = line[1].strip(), line[1].strip(), line[1].strip()) for line in account_fields]
 
 else:
     print("Account file doesn't exist: {}".format(accpath))
@@ -70,12 +70,19 @@ if os.path.isfile(coordpath):
         print("Reading from account file:    \"{}\".".format(coordpath))
         coord_fh = open(coordpath)
         coord_fields = [line.split(",") for line in coord_fg]
-        coords = [coord_template.format(line[1].strip(), line[1].strip()) for line in coord_fields]
+        coords = [coord_template.format(lat = line[1].strip(), lon = line[1].strip()) for line in coord_fields]
 
 else:
     print("coordinate file doesn't exist: {}".format(coordpath))
     exit()
 
 print("Generating script to:         \"{}\".".format(args.output))
-#output_fh = file(args.output, "wb")
-#os.chmod(args.output, 0o755)
+output_fh = file(args.output, "wb")
+os.chmod(args.output, 0o755)
+output_fg.write(preamble + "\n")
+output_fh.write(server_template.format(lat=args.lat, lon=args.lon))
+
+location_and_auth = [(i, j) for i, j in itertools.izip(locations, accounts)
+
+for i, (coords, accounts) in enumerate(location_and_auth):
+    output_fh.write(worker_template.format(lat=coords.lat, lon=coords.lon, steps=args.steps, auth=accounts.auth)) 
