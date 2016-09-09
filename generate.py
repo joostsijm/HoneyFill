@@ -51,6 +51,9 @@ if os.path.isfile(accpath):
     if os.path.splitext(accpath)[1] != ".csv":
         print("account file isn't a csv file: {}".format(accpath))
         exit()
+    else:
+        print("Reading from coordinate file: \"{}\".".format(accpath))
+        account_fh = open(accpath)
 
 else:
     print("Account file doesn't exist: {}".format(accpath))
@@ -60,9 +63,14 @@ if os.path.isfile(coordpath):
     if os.path.splitext(coordpath)[1] != ".csv":
         print("coordinate file isn't a csv file: {}".format(coordpath))
         exit()
+    else:
+        print("Reading from account file:    \"{}\".".format(coordpath))
+        coord_fh = open(coordpath)
 
 else:
     print("coordinate file doesn't exist: {}".format(coordpath))
     exit()
 
-print("Generating script to: \"{}\".".format(args.output))
+print("Generating script to:         \"{}\".".format(args.output))
+#output_fh = file(args.output, "wb")
+#os.chmod(args.output, 0o755)
