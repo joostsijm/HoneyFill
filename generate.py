@@ -39,13 +39,17 @@ parser.add_argument(
         default="5",
         type=int,
         help='''Step size to use.''')
+parser.add_argument(
+        '-ar','--argument',
+        type=str,
+        help='''Extra command line parameters.''')
 args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os {} &\n" #Server template for linux
-worker_template = "sleep 0.2; nohup python runserver.py -ns {coords} -st {steps} {auth}&\n" # Worker template
-auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
-coord_template = "-l '{}, {}' "  # Template for location
+worker_template = "sleep 1; nohup python runserver.py -ns {coords} -st {steps} {auth} {argsu} &\n" # Worker template
+auth_template = "-a {} -u {} -p '{}'"  # For threading reasons whitespace after ' before ""
+coord_template = "-l '{}, {}'"  # Template for location
 
 coordpath = args.coords 
 accpath = args.accounts
@@ -87,4 +91,4 @@ output_fh.write(server_template.format(coordform[0]))
 location_and_auth = [(i, j) for i, j in itertools.izip(coordform, accountform)]
 
 for i, (coords, accounts) in enumerate(location_and_auth):
-    output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts)) 
+    output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
