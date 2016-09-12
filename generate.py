@@ -6,6 +6,7 @@ __date__ = '2016.09.7'
 import sys
 import os
 import argparse
+import itertools 
 
 parser = argparse.ArgumentParser(
         description='''Generating a PokemonGo-Map starting script with using
@@ -42,7 +43,7 @@ args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os -l '{lat}, {lon}' &\n" #Server template for linux
-worker_template = "sleep 0.2; nohup python runserver.py -ns -l '{lat}, {lon}' -st {steps} {auth}&\n" # Worker template
+worker_template = "sleep 0.2; nohup python runserver.py -ns {coords} -st {steps} {auth}&\n" # Worker template
 auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
 coord_template = "-l '{}, {}' "  # Template for location
 
@@ -57,7 +58,7 @@ if os.path.isfile(accpath):
         print("Reading from coordinate file: \"{}\".".format(accpath))
         account_fh = open(args.accounts)
         account_fields = [line.split(",") for line in account_fh]
-        accounts = [auth_template.format(line[0].strip(), line[1].strip(), line[2].strip()) for line in account_fields]
+        accountform = [auth_template.format(line[0].strip(), line[1].strip(), line[2].strip()) for line in account_fields]
 
 else:
     print("Account file doesn't exist: {}".format(accpath))
@@ -69,9 +70,9 @@ if os.path.isfile(coordpath):
         exit()
     else:
         print("Reading from account file:    \"{}\".".format(coordpath))
-        coord_fh = open(coordpath)
+        coord_fh = open(args.coords)
         coord_fields = [line.split(",") for line in coord_fh]
-        coords = [coord_template.format(line[1].strip(), line[1].strip()) for line in coord_fields]
+        coordform = [coord_template.format(line[0].strip(), line[1].strip()) for line in coord_fields]
 
 else:
     print("coordinate file doesn't exist: {}".format(coordpath))
@@ -81,9 +82,8 @@ print("Generating script to:         \"{}\".".format(args.output))
 output_fh = file(args.output, "wb")
 os.chmod(args.output, 0o755)
 output_fh.write(preamble + "\n")
-output_fh.write(server_template.format(lat=args.lat, lon=args.lon))
 
-location_and_auth = [(i, j) for i, j in itertools.izip(locations, accounts)]
+location_and_auth = [(i, j) for i, j in itertools.izip(coordform, accountform)]
 
 for i, (coords, accounts) in enumerate(location_and_auth):
-    output_fh.write(worker_template.format(lat=coords.lat, lon=coords.lon, steps=args.steps, auth=accounts.auth)) 
+    output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts)) 
