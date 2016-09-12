@@ -66,13 +66,13 @@ if os.path.isfile(accpath):
         count = 0
         accountformthread = []
         while count < len(accountform):
-            if (len(accountform) - count < 3):
+            if (len(accountform) - count < args.threads):
                 break
-            threadedacc = []
+            threadedacc = ""
             counttwo = 1
             while counttwo <= args.threads:
                 counttwo = counttwo + 1
-                threadedacc.append(accountform[count])
+                threadedacc += (accountform[count]) + " "
                 count = count + 1
             accountformthread.append(threadedacc)
 
