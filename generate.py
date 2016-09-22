@@ -7,6 +7,7 @@ import sys
 import os
 import argparse
 import itertools 
+import re
 
 parser = argparse.ArgumentParser(
         description='''Generating a PokemonGo-Map starting script with using
@@ -47,7 +48,7 @@ args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os {} &\n" #Server template for linux
-worker_template = "sleep 1; nohup python runserver.py -ns {coords} -st {steps} {auth} {argsu} &\n" # Worker template
+worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {auth} {argsu} &\n" # Worker template
 auth_template = "-a {} -u {} -p '{}'"  # For threading reasons whitespace after ' before ""
 coord_template = "-l '{}, {}'"  # Template for location
 
@@ -80,21 +81,27 @@ else:
     print("Account file doesn't exist: {}".format(accpath))
     exit()
 
+r = re.compile('(\+?-?\d+(\.\d+)?),\s(\+?-?\d+(\.\d+)?)') 
 if os.path.isfile(coordpath):
     if os.path.splitext(coordpath)[1] != ".csv":
         print("coordinate file isn't a csv file: {}".format(coordpath))
         exit()
     else:
-        print("Reading from coords file:     \"{}\".".format(coordpath))
+        print("Reading from coords file :    \"{}\".".format(coordpath))
         coord_fh = open(args.coords)
         coord_fields = [line.split(",") for line in coord_fh]
         coordform = [coord_template.format(line[0].strip(), line[1].strip()) for line in coord_fields]
 
+elif r.match(coordpath) is not None:
+    print("Using cordinate          :    \"{}\".".format(coordpath))
+    coord_fields = coordpath.split(",")
+    coordform = [coord_template.format(coord_fields[0].strip(), coord_fields[1].strip()) ]
+
 else:
-    print("coordinate file doesn't exist: {}".format(coordpath))
+    print("Can't read coordinates   :    \"{}\".".format(coordpath))
     exit()
 
-print("Generating script to:         \"{}\".".format(args.output))
+print("Generating script to     :    \"{}\".".format(args.output))
 output_fh = file(args.output, "wb")
 os.chmod(args.output, 0o755)
 output_fh.write(preamble + "\n")
