@@ -48,8 +48,8 @@ args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os {} &\n" #Server template for linux
-worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {auth} {argsu} &\n" # Worker template
-auth_template = "-a {} -u {} -p '{}'"  # For threading reasons whitespace after ' before ""
+worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {argsu} \\\n {auth} &\n" # Worker template
+auth_template = "-a {} -u {} -p '{}' \\\n"  # For threading reasons whitespace after ' before ""
 coord_template = "-l '{}, {}'"  # Template for location
 
 coordpath = args.coords 
