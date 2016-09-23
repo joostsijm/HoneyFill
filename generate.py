@@ -44,12 +44,21 @@ parser.add_argument(
         '-ar','--argument',
         type=str,
         help='''Extra command line parameters.''')
+parser.add_argument(
+        '-m','--multyline',
+        action="store_true",
+        help='''Print the output to multyple lines.''')
 args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os {} &\n" #Server template for linux
-worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {argsu} \\\n {auth} &\n" # Worker template
-auth_template = "-a {} -u {} -p '{}' \\\n"  # For threading reasons whitespace after ' before ""
+if args.multyline:
+    worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {argsu} \\\n {auth} &\n" # Worker template
+    auth_template = "-a {} -u {} -p '{}' \\\n"  # For threading reasons whitespace after ' before ""
+else:
+    worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {argsu} {auth} &\n" # Worker template
+    auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
+    
 coord_template = "-l '{}, {}'"  # Template for location
 
 coordpath = args.coords 
