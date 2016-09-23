@@ -44,11 +44,19 @@ parser.add_argument(
         '-ar','--argument',
         type=str,
         help='''Extra command line parameters.''')
+parser.add_argument(
+        '-tn','--threadname',
+        action='store_true',
+        help='''Give threads a unique name.''')
 args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os {} &\n" #Server template for linux
-worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {auth} {argsu} &\n" # Worker template
+if args.threadname:
+    import uuid
+    worker_template = "sleep 5; nohup python runserver.py -ns -sn {threadID} {coords} -st {steps} {auth} {argsu} &\n" # Worker template
+else:
+    worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {auth} {argsu} &\n" # Worker template
 auth_template = "-a {} -u {} -p '{}'"  # For threading reasons whitespace after ' before ""
 coord_template = "-l '{}, {}'"  # Template for location
 
@@ -110,4 +118,7 @@ output_fh.write(server_template.format(coordform[0]))
 location_and_auth = [(i, j) for i, j in itertools.izip(coordform, accountformthread)]
 
 for i, (coords, accounts) in enumerate(location_and_auth):
-    output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
+    if args.threadname:
+        output_fh.write(worker_template.format(threadID=str(uuid.uuid4())[:5], coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
+    else:
+        output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
