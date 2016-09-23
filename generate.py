@@ -48,15 +48,24 @@ parser.add_argument(
         '-m','--multyline',
         action="store_true",
         help='''Print the output to multyple lines.''')
+parser.add_argument(
+        '-tn','--threadname',
+        action='store_true',
+        help='''Give threads a unique name.''')
 args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
 server_template = "nohup python runserver.py -os {} &\n" #Server template for linux
+
+worker_template = "sleep 5; nohup python runserver.py -ns {coords} "
+if args.threadname:
+    import uuid
+    worker_template = worker_template + "-sn {threadID} " # Worker template
 if args.multyline:
-    worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {argsu} \\\n {auth} &\n" # Worker template
+    worker_template = worker_template + "-st {steps} {argsu} \\\n {auth} &\n" # Worker template
     auth_template = "-a {} -u {} -p '{}' \\\n"  # For threading reasons whitespace after ' before ""
 else:
-    worker_template = "sleep 5; nohup python runserver.py -ns {coords} -st {steps} {argsu} {auth} &\n" # Worker template
+    worker_template = worker_template + "-st {steps} {argsu} {auth} &\n" # Worker template
     auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
     
 coord_template = "-l '{}, {}'"  # Template for location
@@ -119,4 +128,7 @@ output_fh.write(server_template.format(coordform[0]))
 location_and_auth = [(i, j) for i, j in itertools.izip(coordform, accountformthread)]
 
 for i, (coords, accounts) in enumerate(location_and_auth):
-    output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
+    if args.threadname:
+        output_fh.write(worker_template.format(threadID=str(uuid.uuid4())[:5], coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
+    else:
+        output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
