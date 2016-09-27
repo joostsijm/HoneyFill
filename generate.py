@@ -37,7 +37,6 @@ parser.add_argument(
         help='''Place to store the output file.''')
 parser.add_argument(
         '-st','--steps',
-        default="5",
         type=int,
         help='''Step size to use.''')
 parser.add_argument(
@@ -52,6 +51,11 @@ parser.add_argument(
         '-tn','--threadname',
         action='store_true',
         help='''Give threads a unique name.''')
+parser.add_argument(
+        '-f','--format',
+        action='store_true',
+        help='''Use stepsize and number of accounts from coord CSV:
+            <long>,<lat>,<steps>,<workers>,<accounts>''')
 args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
