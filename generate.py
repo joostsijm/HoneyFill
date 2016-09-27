@@ -43,6 +43,7 @@ parser.add_argument(
 parser.add_argument(
         '-ar','--argument',
         type=str,
+        default="",
         help='''Extra command line parameters.''')
 parser.add_argument(
         '-m','--multyline',
