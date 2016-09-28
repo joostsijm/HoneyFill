@@ -91,23 +91,32 @@ if os.path.isfile(accpath):
         accountform = [auth_template.format(line[0].strip(), line[1].strip(), line[2].strip()) for line in account_fields]
         count = 0
         accountformthread = []
-        coord_fh = open(args.coords)
-        fields_threads = [line.split(",") for line in coord_fh]
-        threads = [line[4].strip() for line in fields_threads]
-        print(threads)
-        for threadnumber in threads:
-            print("threadnumber: {}".format(threadnumber))
-            print("< : {}".format(len(accountform) - count < int(threadnumber)))
-            if (len(accountform) - count < int(threadnumber)):
-                break
-            threadedacc = ""
-            counttwo = 1
-            print("count: {}".format(count))
-            while counttwo <= int(threadnumber):
-                counttwo = counttwo + 1
-                threadedacc += (accountform[count]) + " "
-                count = count + 1
-            accountformthread.append(threadedacc)
+        # Maybe make this a functnion
+        if args.format:
+            coord_fh = open(args.coords)
+            fields_threads = [line.split(",") for line in coord_fh]
+            threads = [line[4].strip() for line in fields_threads]
+            for threadnumber in threads:
+                if (len(accountform) - count < int(threadnumber)):
+                    break
+                threadedacc = ""
+                counttwo = 1
+                while counttwo <= int(threadnumber):
+                    counttwo = counttwo + 1
+                    threadedacc += (accountform[count]) + " "
+                    count = count + 1
+                accountformthread.append(threadedacc)
+        else:
+            while count < len(accountform):
+                if (len(accountform) - count < args.threads):
+                    break
+                threadedacc = ""
+                counttwo = 1
+                while counttwo <= args.threads:
+                    counttwo = counttwo + 1
+                    threadedacc += (accountform[count]) + " "
+                    count = count + 1
+                accountformthread.append(threadedacc)
 
 else:
     print("Account file doesn't exist: {}".format(accpath))
@@ -133,7 +142,7 @@ if os.path.isfile(coordpath):
 elif r.match(coordpath) is not None:
     print("Using cordinate          :    \"{}\".".format(coordpath))
     coord_fields = coordpath.split(",")
-    coordform = [parameters_template.format(coord_fields[0].strip(), coord_fields[1].strip(), args.steps)]
+    coordform = [parameters_template.format(coord_fields[0].strip(), coord_fields[1].strip(), steps=args.steps)]
 
 else:
     print("Can't read coordinates   :    \"{}\".".format(coordpath))
