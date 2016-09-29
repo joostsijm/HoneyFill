@@ -37,7 +37,6 @@ parser.add_argument(
         help='''Place to store the output file.''')
 parser.add_argument(
         '-st','--steps',
-        default="5",
         type=int,
         help='''Step size to use.''')
 parser.add_argument(
@@ -53,6 +52,11 @@ parser.add_argument(
         '-tn','--threadname',
         action='store_true',
         help='''Give threads a unique name.''')
+parser.add_argument(
+        '-f','--format',
+        action='store_true',
+        help='''Use stepsize and number of accounts from coord CSV:
+            <long>,<lat>,<steps>,<workers>,<accounts>''')
 args = parser.parse_args()
 
 preamble = "#!/usr/bin/env bash"
@@ -63,13 +67,16 @@ if args.threadname:
     import uuid
     worker_template = worker_template + "-sn {threadID} " # Worker template
 if args.multyline:
-    worker_template = worker_template + "-st {steps} {argsu} \\\n {auth} &\n" # Worker template
+    worker_template = worker_template + "{argsu} \\\n {auth} &\n" # Worker template
     auth_template = "-a {} -u {} -p '{}' \\\n"  # For threading reasons whitespace after ' before ""
 else:
-    worker_template = worker_template + "-st {steps} {argsu} {auth} &\n" # Worker template
+    worker_template = worker_template + "{argsu} {auth} &\n" # Worker template
     auth_template = "-a {} -u {} -p '{}' "  # For threading reasons whitespace after ' before ""
-    
-coord_template = "-l '{}, {}'"  # Template for location
+   
+if args.format:
+    parameters_template = "-l '{}, {}' -st {steps} -w {workers}"  # Template for location
+else: 
+    parameters_template = "-l '{}, {}' -st {steps}"  # Template for location
 
 coordpath = args.coords 
 accpath = args.accounts
@@ -85,16 +92,32 @@ if os.path.isfile(accpath):
         accountform = [auth_template.format(line[0].strip(), line[1].strip(), line[2].strip()) for line in account_fields]
         count = 0
         accountformthread = []
-        while count < len(accountform):
-            if (len(accountform) - count < args.threads):
-                break
-            threadedacc = ""
-            counttwo = 1
-            while counttwo <= args.threads:
-                counttwo = counttwo + 1
-                threadedacc += (accountform[count]) + " "
-                count = count + 1
-            accountformthread.append(threadedacc)
+        # Maybe make this a functnion
+        if args.format:
+            coord_fh = open(args.coords)
+            fields_threads = [line.split(",") for line in coord_fh]
+            threads = [line[4].strip() for line in fields_threads]
+            for threadnumber in threads:
+                if (len(accountform) - count < int(threadnumber)):
+                    break
+                threadedacc = ""
+                counttwo = 1
+                while counttwo <= int(threadnumber):
+                    counttwo = counttwo + 1
+                    threadedacc += (accountform[count]) + " "
+                    count = count + 1
+                accountformthread.append(threadedacc)
+        else:
+            while count < len(accountform):
+                if (len(accountform) - count < args.threads):
+                    break
+                threadedacc = ""
+                counttwo = 1
+                while counttwo <= args.threads:
+                    counttwo = counttwo + 1
+                    threadedacc += (accountform[count]) + " "
+                    count = count + 1
+                accountformthread.append(threadedacc)
 
 else:
     print("Account file doesn't exist: {}".format(accpath))
@@ -109,12 +132,18 @@ if os.path.isfile(coordpath):
         print("Reading from coords file :    \"{}\".".format(coordpath))
         coord_fh = open(args.coords)
         coord_fields = [line.split(",") for line in coord_fh]
-        coordform = [coord_template.format(line[0].strip(), line[1].strip()) for line in coord_fields]
+        if args.format:
+            coordform = [parameters_template.format(line[0].strip(), line[1].strip(), steps=line[2].strip(), workers=line[2].strip()) for line in coord_fields]
+        elif args.steps:
+            coordform = [parameters_template.format(line[0].strip(), line[1].strip(), steps=args.steps) for line in coord_fields]
+        else:
+            print("No steps set.")
+            exit()
 
 elif r.match(coordpath) is not None:
     print("Using cordinate          :    \"{}\".".format(coordpath))
     coord_fields = coordpath.split(",")
-    coordform = [coord_template.format(coord_fields[0].strip(), coord_fields[1].strip()) ]
+    coordform = [parameters_template.format(coord_fields[0].strip(), coord_fields[1].strip(), steps=args.steps)]
 
 else:
     print("Can't read coordinates   :    \"{}\".".format(coordpath))
@@ -132,4 +161,4 @@ for i, (coords, accounts) in enumerate(location_and_auth):
     if args.threadname:
         output_fh.write(worker_template.format(threadID=str(uuid.uuid4())[:5], coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
     else:
-        output_fh.write(worker_template.format(coords=coordform[i], steps=args.steps, auth=accounts, argsu=args.argument))
+        output_fh.write(worker_template.format(coords=coordform[i], auth=accounts, argsu=args.argument))
