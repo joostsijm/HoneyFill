@@ -55,13 +55,13 @@ account types: PTC / Google
 
 Standard mode.
 
-<long>,<lat>
+	<long>,<lat>
 
 #### Formating
 
 While using the -f parameter make sure you have correct formatting in your CVS.
 
-<long>,<lat>,<steps>,<workers>,<accounts>
+	<long>,<lat>,<steps>,<workers>,<accounts>
 
 * steps: ammount of around the coordinate.
 * workers: number of active scanning accounts.
